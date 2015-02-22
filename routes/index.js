@@ -55,7 +55,7 @@ router.get('/songs', function(req, res, next) {
   var songs = [];
 
   // Get any specified filters
-  var filterText = req.query.filterText;
+  var filterText = req.query.filterText || '';
   var book = req.query.book;
 
   // Do the thing
@@ -65,29 +65,29 @@ router.get('/songs', function(req, res, next) {
     db.run("CREATE TABLE IF NOT EXISTS bookcodes (code text primary key not null, title text not null, format text, filename text, page_offset integer);");
     db.run("CREATE TABLE IF NOT EXISTS songs (id integer primary key not null, bookcode text, page integer, title text);");
 
-    console.log("SELECT * FROM songs" + (filterText || book ? " WHERE" : '') + (filterText ? " title LIKE '%" + filterText + "%'" : "") + (book && filterText ? ' AND' : '') + (book ? " bookcode = '" + book + "'" : '') + " LIMIT 200;");
+    var statement = db.prepare("SELECT * FROM songs WHERE title LIKE '%' || ? || '%'" + (book ? " AND bookcode = '" + book + "'" : '') + " LIMIT 200;");
 
-    db.each("SELECT * FROM songs" + (filterText || book ? " WHERE" : '') + (filterText ? " title LIKE '%" + filterText + "%'" : "") + (book && filterText ? ' AND' : '') + (book ? " bookcode = '" + book + "'" : '') + " LIMIT 200;",
+    statement.each(filterText, function(err, row) {
 
-    function(err, row) {
-
-      song = {};
-      song.id = row.id;
-      song.bookcode = row.bookcode;
-      song.page = row.page;
-      song.title = row.title;
-      songs.push(song);
+      if(!err && row) {
+        song = {};
+        song.id = row.id;
+        song.bookcode = row.bookcode;
+        song.page = row.page;
+        song.title = row.title;
+        songs.push(song);
+      }
 
     }, function(err, n) {
-
-      // For debug purposes
-      console.log('Result rows: ' + n);
-
+      
       // Close the database connection and send the result
       db.close();
       res.send(JSON.stringify(songs));
 
     });
+
+    statement.finalize();
+
   });
 
 });
@@ -114,16 +114,20 @@ router.delete('/songs', function(req, res, next) {
   // Do the thing
   db.serialize(function() {
 
-    console.log("DELETE FROM songs WHERE id = " + id + ";");
+    var statement = db.prepare("DELETE FROM songs WHERE id = ?;");
 
-    db.run("DELETE FROM songs WHERE id = " + id + ";",
-    function(err) {
+    statement.run(id, function(err) {
+
+      console.log("Everything is just ducky.");
 
       // Close the database connection
       db.close();
       res.send();
 
     });
+
+    statement.finalize();
+
   });
 
 });
@@ -153,16 +157,20 @@ router.post('/songs', function(req, res, next) {
   // Do the thing
   db.serialize(function() {
 
-    console.log("UPDATE songs SET bookcode = '" + bookcode + "', title = '" + title + "', page = " + page + " WHERE id = " + id + ";");
+    var statement = db.prepare("UPDATE songs SET bookcode = ?, title = ?, page = ? WHERE id = ?;");
 
-    db.run("UPDATE songs SET bookcode = '" + bookcode + "', title = '" + title + "', page = " + page + " WHERE id = " + id + ";",
-    function(err) {
+    statement.run(bookcode, title, page, id, function(err) {
+
+      console.log("Everything is just ducky.");
 
       // Close the database connection
       db.close();
       res.send();
 
     });
+
+    statement.finalize();
+
   });
 
 });
