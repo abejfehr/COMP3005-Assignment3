@@ -156,3 +156,7 @@ md-input-container:not(.md-input-has-value) input:not(:focus) {
     padding: 0 16px 0 32px;
     text-transform: none;
   }
+
+  button.selected {
+    background-color:#ececec;
+  }

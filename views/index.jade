@@ -11,9 +11,9 @@ block content
             ul.book-list.ng-scope(flex='')
               li
                 button.md-button-toggle.md-button.md-default-theme(ng-click="selectBook()", tabindex='0', flex='')
-                  span.ng-binding.ng-scope All
+                  span.ng-binding.ng-scope Show all
               li(ng-repeat="bookcode in bookcodes | orderBy: 'title'", flex='')
-                button.md-button-toggle.md-button.md-default-theme(ng-click="selectBook(bookcode.code);toggle()",tabindex='0', flex='')
+                button.md-button-toggle.md-button.md-default-theme(ng-click="selectBook(bookcode.code)", ng-class="{ 'selected' : (selectedBook == bookcode.code) }", tabindex='0', flex='')
                   span.ng-binding.ng-scope
                     {{ bookcode.title }}
       md-content(flex='')

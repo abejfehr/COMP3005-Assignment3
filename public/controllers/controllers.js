@@ -56,8 +56,8 @@ angular
     // Changes the book that's selected
     $scope.selectBook = function(code) {
 
-      this.selectedBook = (!code ? '' : code);
-      this.filter();
+      $scope.selectedBook = (!code ? '' : code);
+      $scope.filter();
 
     };
 
@@ -74,9 +74,10 @@ angular
       });
 
     };
+
   })
   .controller('editSongController',
-    function($http, $scope, $mdBottomSheet, songService) {
+    function($http, $scope, $mdBottomSheet, songService, $mdToast, $animate) {
 
     $scope.editSong = JSON.parse(JSON.stringify(songService.songToEdit));
 
@@ -90,6 +91,7 @@ angular
       $http.delete('songs?id=' + this.editSong.id)
       .success(function(data, status, headers) {
         $mdBottomSheet.hide();
+        $scope.toast('Song was successfully deleted');
       });
 
     };
@@ -102,8 +104,19 @@ angular
         this.editSong.page)
       .success(function(data, status, headers) {
         $mdBottomSheet.hide();
+        $scope.toast('Song was successfully updated');
       });
 
+    };
+
+    // Show a message
+    $scope.toast = function(message) {
+      $mdToast.show(
+        $mdToast.simple()
+          .content(message)
+          .position('top')
+          .hideDelay(3000)
+      );
     };
 
   });
