@@ -1,0 +1,33 @@
+extends layout
+
+block content
+  #app(ng-controller='songDataController', layout='column', flex='')
+    md-toolbar(layout='row')
+      h1 FakeBook Application
+    section(layout='row', flex='')
+      md-sidenav.md-sidenav-left.md-whiteframe-z2(md-component-id='left', md-is-locked-open="$media('gt-md')")
+        md-content
+          div(layout='column', layout-fill='')
+            ul.book-list.ng-scope(flex='')
+              li
+                button.md-button-toggle.md-button.md-default-theme(ng-click="selectBook()", tabindex='0', flex='')
+                  span.ng-binding.ng-scope All
+              li(ng-repeat="bookcode in bookcodes | orderBy: 'title'", flex='')
+                button.md-button-toggle.md-button.md-default-theme(ng-click="selectBook(bookcode.code);toggle()",tabindex='0', flex='')
+                  span.ng-binding.ng-scope
+                    {{ bookcode.title }}
+      md-content(flex='')
+        div(layout='column', layout-fill='', flex='')
+          md-content.md-padding(layout='row', flex='')
+            form(name='songFilterForm' flex='')
+              div(layout='', layout-sm='column')
+                md-input-container(flex='')
+                  label Filter Songs
+                  input(ng-model='filterText', ng-change='filter()')
+              md-list
+                md-item(ng-repeat="song in songs | orderBy: 'title'", ng-dblclick="showEditForm($event, song);")
+                  md-item-content
+                    .md-tile-content(flex='')
+                      h3 {{ song.title }}&nbsp;&nbsp;&nbsp;&nbsp;
+                      p(style="color:#777;") Book Code: {{ song.bookcode }}&nbsp;&nbsp;|&nbsp;&nbsp;Page number: {{ song.page }}
+    script(src='controllers/controllers.js')

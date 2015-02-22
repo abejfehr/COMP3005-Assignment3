@@ -1,0 +1,36 @@
+<md-bottom-sheet class="md-list md-has-header">
+  <md-subheader>Edit Song</md-subheader>
+
+    <md-content class="md-padding">
+      <form name="addTaskForm" layout="row" flex>
+        <div layout layout-sm="row" flex>
+          <div layout="column" flex>
+            <md-input-container flex>
+                <label>Title</label>
+                <input ng-model="editSong.title">
+            </md-input-container>
+            <md-input-container flex>
+              <label>Book</label>
+              <input type="text" ng-model="editSong.bookcode">
+            </md-input-container>
+          </div>
+          <div layout="column" flex>
+            <md-input-container flex>
+              <label>Page</label>
+              <input type="text" ng-model="editSong.page">
+            </md-input-container>
+            <md-input-container flex>
+              <label>Key</label>
+              <input type="text" ng-model="editSong.id" disabled>
+            </md-input-container>
+          </div>
+        </div>
+        <div layout="column" flex="10">
+          <md-button class="" ng-click="cancel()" flex>Never Mind</md-button>
+          <md-button class="md-warn" ng-click="delete()" flex>Delete</md-button>
+          <md-button class="md-raised md-primary" ng-click="save()" flex>Update</md-button>
+        </div>
+      </form>
+    </md-content>
+
+</md-bottom-sheet>
