@@ -79,7 +79,7 @@ router.get('/songs', function(req, res, next) {
       }
 
     }, function(err, n) {
-      
+
       // Close the database connection and send the result
       db.close();
       res.send(JSON.stringify(songs));
@@ -117,8 +117,6 @@ router.delete('/songs', function(req, res, next) {
     var statement = db.prepare("DELETE FROM songs WHERE id = ?;");
 
     statement.run(id, function(err) {
-
-      console.log("Everything is just ducky.");
 
       // Close the database connection
       db.close();
@@ -160,8 +158,6 @@ router.post('/songs', function(req, res, next) {
     var statement = db.prepare("UPDATE songs SET bookcode = ?, title = ?, page = ? WHERE id = ?;");
 
     statement.run(bookcode, title, page, id, function(err) {
-
-      console.log("Everything is just ducky.");
 
       // Close the database connection
       db.close();

@@ -15,7 +15,7 @@ angular
 
   })
   .controller('songDataController',
-    function($scope, $http, $timeout, $mdBottomSheet, songService) {
+    function($scope, $http, $timeout, $mdBottomSheet, songService, $mdToast, $animate) {
 
     // Store the bookcodes and the songs
     $scope.bookcodes = [];
@@ -26,16 +26,26 @@ angular
     $scope.selectedBook = '';
 
     // Get the bookcodes initially
-    $http.get('/bookcodes').success(function(data, status, headers) {
+    $http.get('/bookcodes').success(function(data) {
 
       $scope.bookcodes = data;
+
+    }).error(function() {
+
+      // Notify the user that we can't connect to the server
+      $scope.toast('There was an error connecting to the database server. Try again later.');
 
     });
 
     // Get the songs initially
-    $http.get('/songs').success(function(data, status, headers ) {
+    $http.get('/songs').success(function(data) {
 
       $scope.songs = data;
+
+    }).error(function() {
+
+      // Notify the user that we can't connect to the server
+      $scope.toast('There was an error connecting to the database server. Try again later.');
 
     });
 
@@ -48,7 +58,14 @@ angular
         ( this.filterText.length > 0 && this.selectedBook.length > 0 ? '&' : '' ) +
         ( this.selectedBook.length > 0 ? 'book=' + this.selectedBook : '' ))
       .success(function(data, status, headers ) {
+
         $scope.songs = data;
+
+      }).error(function() {
+
+        // Notify the user that we can't connect to the server
+        $scope.toast('There was an error connecting to the database server. Try again later.');
+
       });
 
     };
@@ -75,6 +92,16 @@ angular
 
     };
 
+    // Show a message
+    $scope.toast = function(message) {
+      $mdToast.show(
+        $mdToast.simple()
+          .content(message)
+          .position('top')
+          .hideDelay(3000)
+      );
+    };
+
   })
   .controller('editSongController',
     function($http, $scope, $mdBottomSheet, songService, $mdToast, $animate) {
@@ -89,9 +116,14 @@ angular
 
       // Remove that song from the database
       $http.delete('songs?id=' + this.editSong.id)
-      .success(function(data, status, headers) {
+      .success(function() {
         $mdBottomSheet.hide();
         $scope.toast('Song was successfully deleted');
+      }).error(function() {
+
+        // Notify the user that we can't connect to the server
+        $scope.toast('There was an error connecting to the database server. Try again later.');
+
       });
 
     };
@@ -102,9 +134,16 @@ angular
       $http.post('songs?id=' + this.editSong.id + '&title=' +
         this.editSong.title + '&bookcode=' + this.editSong.bookcode + '&page=' +
         this.editSong.page)
-      .success(function(data, status, headers) {
+      .success(function() {
+
         $mdBottomSheet.hide();
         $scope.toast('Song was successfully updated');
+
+      }).error(function() {
+
+        // Notify the user that we can't connect to the server
+        $scope.toast('There was an error connecting to the database server. Try again later.');
+
       });
 
     };
