@@ -29,3 +29,7 @@ node_modules
 
 # Ignore any PDF's
 *.pdf
+
+# Ignore the gruntfile for now
+gruntfile.js
+
