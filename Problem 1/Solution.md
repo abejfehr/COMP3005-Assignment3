@@ -10,12 +10,16 @@ For each of the following situations provide the required relational algebra to 
 Problem 1.1)
 List all the names of subscribers and their directory numbers (the area, office, station code of their lines).
 
+**Solution: **
+
 $$
 \Pi_{name, area, office, station }(Subscriber \bowtie Line)
 $$
 
 Problem 1.2)
 List the names, email address and line id's of all subscribers who subscribe to at least one distinctive ring tone (Based on your design from the previous assignment).
+
+**Solution: **
 
 $$
 \Pi_{name, email\_address, line\_id}((Contacts \bowtie Subscriber) \bowtie Lines)
@@ -26,6 +30,8 @@ $$
 Problem 1.3)
 List the portID's and foreign switch name of all the trunks that are have at least one idle channel
 
+**Solution: **
+
 $$
 \Pi_{port\_id, foreign\_switch}(Trunks \bowtie Trunk Channels)
 $$
@@ -33,34 +39,75 @@ $$
 Problem 1.4)
 List the name of the originator and the name of the terminator for any two people who are currently talking on a line to line call. A line to line call is when one of the lines is talking to another on of the lines, so there are no trunks involved.
 
-$$
-\alpha = \rho_{originator(port\_id)}(\Pi_{originating\_facility}(Calls) \bowtie Subscribers)
-$$
+**Solution:**
+
+First, we'll get the name of the originator of the call:
 
 $$
-\beta = \rho_{terminator(port\_id)}(\Pi_{terminating\_facility}(Calls) \bowtie Subscribers)
+\alpha = \Pi_{name, port\_id}(\rho_{originating\_facility/port\_id, oname/name}(subscribers)) \bowtie \Pi_{call\_id,originating\_facility,och}(calls)
 $$
 
-and finally...
+**Note:** We're keeping the call_id in the table so we can do a natural join later.
+
+Next we'll do the same for the destination(terminator):
 
 $$
-\Pi_{o\_name,t\_name}(\sigma_{och=0 \wedge tch=0}(Calls))
+\beta = \Pi_{name, port\_id}(\rho_{terminating\_facility/port\_id, tname/name}(subscribers)) \bowtie \Pi_{call\_id,terminating\_facility,tch}(calls)
+$$
+
+Finally, we can put it all together with a natural join:
+
+$$
+\Pi_{oname,tname}(\sigma_{och=0 \wedge tch=0}(\alpha \bowtie \beta))
 $$
 
 Problem 1.5)
 The CALL_FORWARD_NUMBERS table provides the numbers to forward to when the call forward service must be activated. However there should only be an entry in this table if the customer subscribes to a call forward service. Find all the lines that have an entry in the Call_Forward_Numbers table but who do not subcribe to a call forward service. Call forward serices have one of the following service codes: "CFD", "CFB", "CFN"
 
+**Solution:**
+
+First, we'll get all the lines who have numbers in the call_forward_numbers table and rename the line_id field:
+
 $$
-\sigma_{has Number In Call Forward \wedge doesn't Subscribe}(Lines)
+\alpha = \rho_{line\_id/port\_id}(\Pi_{port\_id}(call\_forward\_numbers))
 $$
 
-* *Note that I don't use a Pi symbol here because we want the **whole** table*
+Next, let's get the lines from the service_subscribers table who subscribe to call forwarding:
+
+$$
+\beta = \Pi_{line\_id}(\sigma_{service\_code=CFD \vee service\_code=CFB \vee service\_code=CFN}(service\_subscribers))
+$$
+
+Finally, our answer will just be the set difference of the two:
+
+$$
+\alpha - \beta
+$$
+
 
 Problem 1.6)
 Suppose the originator of the call with callID 101 called someone who has the call forward service. Find the number to which the call should be forwarded. That is produce a table that has the call forward number in it.
 
+**Solution: **
+
+First we'll isolate the area, office and station code of the destination line:
+
 $$
-\Pi_{area\_code, office\_code, station\_code}()
+\alpha = \Pi_{area\_code, office\_code, station\_code}(\sigma_{call\_id=101}(calls))
+$$
+
+*I need to rename these, I'll do that before I hand in the assignment*
+
+Next, we'll get the port_id of the line whose number we just found:
+
+$$
+\beta = \Pi_{port\_id}(\alpha \bowtie lines)
+$$
+
+Lastly, we can just natural join this again with the call_forward_numbers table, and our result should be a single tuple with the new destination line:
+
+$$
+\beta \bowtie call\_forward\_numbers
 $$
 
 Problem 1.7)
@@ -82,14 +129,20 @@ $$
 Problem 1.9)
 Produce a table that lists for each service (give the name of the service) and the number of lines that subscribe to that service.
 
+**Solution: **
+
 $$
-\Pi_{stuff}
+
 $$
 
 Problem 1.10)
 List the portID's of all lines that subscribe to all of the available services.
 
+**Solution: **
+
+We can just divide the service_subscribers by a table with all of the services, and the resultant table will have only the people who have all services. Taking a projection of only the port_id will take care of duplicate port_id's.
+
 $$
-\Pi_{portID}(service\_subscribers \div \rho_{scode/service\_code}(services))
+\Pi_{port\_id}(service\_subscribers \div \rho_{scode/service\_code}(services))
 $$
 
