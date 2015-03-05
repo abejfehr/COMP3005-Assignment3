@@ -33,3 +33,5 @@ node_modules
 # Ignore the gruntfile for now
 gruntfile.js
 
+# Ignore any zips
+*.zip
